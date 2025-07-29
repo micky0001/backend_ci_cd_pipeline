@@ -22,20 +22,22 @@ jobs:
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Reset Docker builder (optional fix)
-      run: |
-        docker buildx stop || true
-        docker builder prune --force || true
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-    - name: Build, tag, and push image to ECR
-      env:
-        ECR_REGISTRY: ${{ secrets.ECR_REGISTRY }}
-        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-      run: |
-        IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-7)
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+    - name: Set up QEMU (optional, for multi-arch support)
+      uses: docker/setup-qemu-action@v3
+
+    - name: Build and push image to ECR using Buildx
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+        outputs: type=registry
+
+    - name: Set image tag
+      run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
     - name: Render ECS task definition
       id: render
@@ -43,7 +45,7 @@ jobs:
       with:
         task-definition: ecs-task-def.json
         container-name: ${{ secrets.CONTAINER_NAME }}
-        image: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        image: ${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
 
     - name: Deploy to ECS
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
