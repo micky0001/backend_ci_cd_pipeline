@@ -21,11 +21,11 @@ jobs:
 
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v2
-
-    - name: Set Docker config experimental field (fix warning)
-      run: |
-        mkdir -p ~/.docker
-        echo '{ "experimental": "enabled" }' > ~/.docker/config.json
+    - name: Fix Docker builder
+       run: |
+       docker buildx stop || true
+       docker builder prune --force || true
+       docker buildx use default || true
 
     - name: Build, tag, and push image to ECR
       run: |
