@@ -1,5 +1,5 @@
 {
-  "family": "my-node-app-task:2",
+  "family": "my-node-app-task",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
