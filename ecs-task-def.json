@@ -1,5 +1,6 @@
 {
   "family": "my-node-app-task",
+  "executionRoleArn": "arn:aws:iam::583453267687:role/ecsTaskExecutionRole",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
@@ -7,7 +8,7 @@
   "containerDefinitions": [
     {
       "name": "my-node-app-container",
-      "image": "REPLACE_IMAGE",  
+      "image": "REPLACE_IMAGE",
       "essential": true,
       "portMappings": [
         {
