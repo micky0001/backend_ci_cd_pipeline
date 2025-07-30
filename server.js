@@ -6,8 +6,16 @@ const HOST = '0.0.0.0'; // Accept connections from anywhere
 
 app.use(express.json());
 
-let users = [];
-let idCounter = 1;
+// Dummy user data (as objects with id)
+let users = [
+  { id: 1, name: "John Doe", age: 30 },
+  { id: 2, name: "Jane Smith", age: 25 },
+  { id: 3, name: "Alice Johnson", age: 28 },
+  { id: 4, name: "Bob Brown", age: 35 }
+];
+
+// Set initial ID counter based on last user's ID
+let idCounter = users.length + 1;
 
 // Root route
 app.get('/', (req, res) => {
